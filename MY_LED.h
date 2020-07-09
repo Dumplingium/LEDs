@@ -2,35 +2,36 @@
 #include <cstdint>
 #include <forward_list>
 #include <iterator>
-#include <map>
 
 using namespace std;
 
 class MY_LED
 {
     private:
-		uint8_t *buff;
         uint32_t trans(uint8_t color);
-		map<uint8_t*, uint8_t*> temp_colors;
     public:	
 		MY_LED();	
 		~MY_LED();
-        // forward_list<uint8_t*> temp_colors;
+        forward_list<uint8_t*> temp_colors;
         uint8_t* trans_color(uint8_t r, uint8_t g, uint8_t b);
         uint8_t * write_color(unsigned char* color);
 		void trans_list(void);
+		uint8_t * procissing_colors(forward_list<uint8_t *> set_colors);
     
 };
 
 MY_LED::MY_LED()
 {
-	buff = new uint8_t[9];
-	
+		
 }
 
 MY_LED::~MY_LED()
 {
-	delete[] buff;
+	forward_list<uint8_t*>::iterator iter;
+	for (iter = temp_colors.begin(); iter != temp_colors.end(); iter++)
+	{
+		delete[] (*iter);
+	}
 }
 
 uint32_t MY_LED::trans(uint8_t color)
@@ -52,7 +53,7 @@ uint32_t MY_LED::trans(uint8_t color)
 uint8_t* MY_LED::trans_color(uint8_t r, uint8_t g, uint8_t b)
 {
 	uint32_t r_f = 0, g_f = 0, b_f = 0;
-	// static uint8_t buff[9];
+	uint8_t *buff = new uint8_t[9];
 	r_f = trans(r);
 	g_f = trans(g);
 	b_f = trans(b);
@@ -79,23 +80,26 @@ uint8_t* MY_LED::trans_color(uint8_t r, uint8_t g, uint8_t b)
 uint8_t * MY_LED::write_color(unsigned char * color)
 {
     bool flag_color;
-    map<uint8_t*, uint8_t*>::iterator iter;
+    forward_list<uint8_t*>::iterator iter;
 
-	iter = temp_colors.find(color);
-	if (iter != temp_colors.end())
-	{
-		return (*iter).second;
+	iter = temp_colors.begin();
+	while(iter != temp_colors.end())
+    {
+		flag_color = false;
+		for (int i =0; i<3 ; i++)
+			if(color[i] != (*iter)[i])
+				flag_color = true;
+
+		if (flag_color == false) 
+			return (*iter);
+
+		iter++;
 	}
-	else
-	{
-		temp_colors.insert(make_pair(color, trans_color(color[0], color[1], color[2])));
-		iter = temp_colors.find(color);
-		return (*iter).second;
-	}
-	
+	temp_colors.push_front(color);
+	return temp_colors.front();
 }
 
-/*void MY_LED::trans_list(void)
+void MY_LED::trans_list(void)
 {
 	forward_list<uint8_t*>::iterator iter;
 	forward_list<uint8_t*>::iterator iter2;
@@ -104,15 +108,30 @@ uint8_t * MY_LED::write_color(unsigned char * color)
 	while(iter != temp_colors.end())
     {
 		(*iter) = trans_color((*iter)[0], (*iter)[1], (*iter)[2]);
-		cout << (*iter) << endl;
 		iter++;
 	}
-	cout << endl;
+}
 
-	iter2 = temp_colors.begin();
-	while(iter2 != temp_colors.end())
-    {
-		cout << (*iter2) << endl;
-		iter2++;
+/*uint8_t *MY_LED::procissing_colors(forward_list<uint8_t *> set_colors)
+{
+	forward_list<uint8_t*> color_adress;
+
+	forward_list<uint8_t*>::iterator iter_s;
+    forward_list<uint8_t*>::iterator iter_ad;
+
+	iter_s = set_color.begin();
+    
+    temp_colors.push_front((*iter_s));
+    color_adress.push_front(temp_colors.front());
+    iter_s++;
+
+    iter_ad = color_adress.begin();
+    while (iter_s != set_color.end())
+	{
+        color_adress.insert_after(iter_ad, write_color((*iter_s)));
+		iter_s++;
 	}
+
+    trans_list();
+	return 
 }*/

@@ -28,9 +28,9 @@ int main()
 
     iter_s = my_set_color.begin();
     
-    // my_leds.temp_colors.push_front((*iter_s));
-    // my_color_adress.push_front(my_leds.temp_colors.front());
-    // iter_s++;
+    my_leds.temp_colors.push_front((*iter_s));
+    my_color_adress.push_front(my_leds.temp_colors.front());
+    iter_s++;
 
     iter_ad = my_color_adress.begin();
     while (iter_s != my_set_color.end())
@@ -39,25 +39,26 @@ int main()
 		iter_s++;
 	}
 
-    // cout << my_leds.trans_color(255, 0, 255) << endl;
-    // my_leds.trans_list();
+    my_leds.trans_list();
 
     iter_ad = my_color_adress.begin();
     while (iter_ad != my_color_adress.end())
     {
         cout << ((void*)*iter_ad) << endl;
         iter_ad++;
-    }  
+    }
+    cout << endl; 
 
-    /*forward_list<uint8_t*>::iterator iter = my_leds.temp_colors.begin();   
+    forward_list<uint8_t*>::iterator iter = my_leds.temp_colors.begin();   
     while (iter != my_leds.temp_colors.end())
 	{
 		for(int i = 0; i < 9; i++)
 		{
 			cout << static_cast<unsigned>((*iter)[i]) << "  ";
 		}
+        cout << endl;
 		iter++;
 	}
-    cout << endl;*/
+    cout << endl;
     
 }
