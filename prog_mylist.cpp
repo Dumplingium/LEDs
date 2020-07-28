@@ -10,14 +10,15 @@ int main()
 {
     SET_LEDS my_set_leds;
     MY_LED my_leds;
+    NewList<uint8_t> my_set_color1;
     NewList<uint8_t> my_set_color;
     NewList<uint8_t> my_color_address;
 
-    uint8_t red[3] = {255, 0, 0};
-    uint8_t blue_g[3] = {0, 255, 255};
-    uint8_t green[3] = { 0, 255, 0};
-    uint8_t blue[3] = {0, 0, 255};
-    uint8_t red_b[3] = {255, 0, 255};
+    uint8_t *red = new uint8_t[9]{255, 0, 0};
+    uint8_t *blue_g = new uint8_t[9]{0, 255, 255};
+    uint8_t *green = new uint8_t[9]{ 0, 255, 0};
+    uint8_t *blue = new uint8_t[9]{0, 0, 255};
+    uint8_t *red_b = new uint8_t[9]{255, 0, 255};
 
     
     my_set_color.Add(red_b);
@@ -26,7 +27,18 @@ int main()
     my_set_color.Add(blue);
     my_set_color.Add(green);
 
+    my_set_color1.Add(red);
+    my_set_color1.Add(blue_g);
+    my_set_color1.Add(red_b);
+    my_set_color1.Add(blue);
+
     my_set_leds.AddNewLed(&my_set_color);
+    my_set_leds.AddNewLed(&my_set_color1);
+
+    
+    my_set_leds.TransList(&my_set_leds.SetAllColors);
+
+    for(int i = 0; i < 5; i++) my_set_leds.One();
     // my_leds.NewLed(&my_set_color, &my_leds.SetColors);
 
     // uint8_t* begin_set = my_set_color.next();

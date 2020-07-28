@@ -148,24 +148,25 @@ void NewList<T>::PrintListBuff(int num)
 {
     std::cout << "! ";
 
-    Node *temp_object = object->Next;
+    uint8_t *begin_col = this->next();
+    uint8_t *iter = this->back();
     do
-    {
-        for(int i = 0; i < num; i++)
-        {
-            std::cout << static_cast<unsigned>(temp_object->content[i]) << " ";
-        }
-        std::cout << " -> " << std::endl;
-        temp_object = temp_object->Next;
-    }while(temp_object != object->Next);
-    
+	{
+		for(int i = 0; i < 3; i++)
+		{
+			std::cout << static_cast<unsigned>(iter[i]) << "  ";
+		}
+        std::cout << std::endl;
+        iter = this->next();
+	}while (iter != begin_col);
     std::cout << std::endl;
 }
 
 template<typename T>
 T* NewList<T>::back()
 {
-    return object->content;
+    if(object != NULL) return object->content;
+    else return NULL;
 }
 
 template<typename T>
@@ -178,5 +179,7 @@ T* NewList<T>::next()
 template<typename T>
 void NewList<T>::rewrite(T *NewContent)
 {
+    // T* temp = object->content;
     object->content = NewContent;
+    // delete temp;
 }

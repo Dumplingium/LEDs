@@ -5,18 +5,19 @@
 class MY_LED
 {
     protected:
-        uint32_t AdaptationColor(uint8_t color);
-        uint8_t* TransColor(uint8_t r, uint8_t g, uint8_t b);
+        // uint32_t AdaptationColor(uint8_t color);
+        // void TransColor(uint8_t *buff);
 		NewList<uint8_t> SetAddress;
     public:	
 		MY_LED();	
 		~MY_LED();
         NewList<uint8_t> SetColors;
-		// MY_LED operator=(NewList<uint8_t*> *set_address);
+		MY_LED * operator=(MY_LED *new_led);
         uint8_t * WriteColor(uint8_t* color, NewList<uint8_t> *set_colors, uint8_t num = 3);
-		void TransList(NewList<uint8_t> *set_colors);
-		NewList<uint8_t*>* NewLed(NewList<uint8_t> *set_color, NewList<uint8_t> *set_colors);
-    
+		// void TransList(NewList<uint8_t> *set_colors);
+		void NewLed(NewList<uint8_t> *set_color, NewList<uint8_t> *set_colors);
+		uint8_t * NextAddress();
+		uint8_t * BackAddress();
 };
 
 MY_LED::MY_LED()
@@ -29,16 +30,16 @@ MY_LED::~MY_LED()
 	
 }
 
-// MY_LED MY_LED::operator=(NewList<uint8_t> *set_address)
-// {
-// 	this->SetAddress = set_address;
-// 	return this;
-// }
+MY_LED * MY_LED::operator=(MY_LED *new_led)
+{
+	this->SetAddress = new_led->SetAddress;
+	return this;
+}
 
-uint32_t MY_LED::AdaptationColor(uint8_t color)
+/* uint32_t MY_LED::AdaptationColor(uint8_t color)
 {
 	uint32_t color_f = 0;
-/* можно улучшить */
+///
 	for(int i = 0; i < 8; i++)
 	{
 		if (color & 1) color_f = color_f | (6 << (i*3));
@@ -46,12 +47,15 @@ uint32_t MY_LED::AdaptationColor(uint8_t color)
 		color >>= 1;
 	} 
 	return color_f;
-}
+}*/
 
-uint8_t* MY_LED::TransColor(uint8_t r, uint8_t g, uint8_t b)
+/*void MY_LED::TransColor(uint8_t *buff)
 {
+	uint8_t r = buff[0];
+	uint8_t g = buff[1];
+	uint8_t b = buff[2];
+
 	uint32_t r_f = 0, g_f = 0, b_f = 0;
-	uint8_t *buff = new uint8_t[9];
 	r_f = AdaptationColor(r);
 	g_f = AdaptationColor(g);
 	b_f = AdaptationColor(b);
@@ -67,8 +71,22 @@ uint8_t* MY_LED::TransColor(uint8_t r, uint8_t g, uint8_t b)
 		buff[i+6] = (b_f & 0xFF0000) >> 16;
 		b_f <<= 8;
 	}
-	return buff;
-}
+}*/
+
+/*void MY_LED::TransList(NewList<uint8_t> *set_colors)
+{
+	
+	uint8_t *iter = set_colors->back();
+	TransColor(iter);
+	uint8_t *begin_s = set_colors->back();
+	iter = set_colors->next();
+	
+	do
+    {
+		TransColor(iter);
+		iter = set_colors->next();
+	}while(iter != begin_s);
+}*/
 
 uint8_t * MY_LED::WriteColor(uint8_t * color, NewList<uint8_t> *set_colors, uint8_t num)
 {
@@ -92,37 +110,26 @@ uint8_t * MY_LED::WriteColor(uint8_t * color, NewList<uint8_t> *set_colors, uint
 	return set_colors->back();
 }
 
-void MY_LED::TransList(NewList<uint8_t> *set_colors)
-{
-	
-	uint8_t *iter = set_colors->back();
-	set_colors->rewrite(TransColor(iter[0], iter[1], iter[2]));
-	uint8_t *begin_s = set_colors->back();
-	iter = set_colors->next();
-	
-	do
-    {
-		set_colors->rewrite(TransColor(iter[0], iter[1], iter[2]));
-		iter = set_colors->next();
-	}while(iter != begin_s);
-}
-
-NewList<uint8_t*>* MY_LED::NewLed(NewList<uint8_t> *set_color, NewList<uint8_t> *set_colors)
+void MY_LED::NewLed(NewList<uint8_t> *set_color, NewList<uint8_t> *set_colors)
 {
 	uint8_t* begin_set = set_color->next();
-    
-    set_colors->Add(begin_set);
-    SetAddress.Add(set_colors->back());
+	uint8_t* temp = set_color->back();
 
-    uint8_t* temp = set_color->next();
 
-    while (temp != begin_set)
+    if(set_colors->back() == NULL)
 	{
-        SetAddress.Add(WriteColor(temp, set_colors));
+		set_colors->Add(begin_set);
+		SetAddress.Add(set_colors->back());
 		temp = set_color->next();
 	}
 
-    TransList(set_colors);
+    do
+	{
+        SetAddress.Add(WriteColor(temp, set_colors));
+		temp = set_color->next();
+	}while (temp != begin_set);
+
+    // TransList(set_colors);
 	
 ////*** вывод массива адресов ***/////
     /*uint8_t* begin_ad = SetAddress.next();
@@ -147,4 +154,14 @@ NewList<uint8_t*>* MY_LED::NewLed(NewList<uint8_t> *set_color, NewList<uint8_t> 
         iter = set_colors->next();
 	}while (iter != begin_col);
     std::cout << std::endl;*/
+}
+
+uint8_t *MY_LED::NextAddress()
+{
+	return SetAddress.next();
+}
+
+uint8_t *MY_LED::BackAddress()
+{
+	return SetAddress.back();
 }
