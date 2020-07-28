@@ -2,21 +2,20 @@
 #include <cstdint>
 #include "list_v3.h"
 
-using namespace std;
-
 class MY_LED
 {
     protected:
         uint32_t AdaptationColor(uint8_t color);
         uint8_t* TransColor(uint8_t r, uint8_t g, uint8_t b);
+		NewList<uint8_t> SetAddress;
     public:	
 		MY_LED();	
 		~MY_LED();
-        NewList<uint8_t*> SetColors;
-		NewList<uint8_t*> SetAddress;
-        uint8_t * WriteColor(uint8_t* color, NewList<uint8_t*> *set_colors, uint8_t num = 3);
-		void TransList(void);
-		NewList<uint8_t*>* NewLed(NewList<uint8_t *> *set_color, NewList<uint8_t*> *set_colors);
+        NewList<uint8_t> SetColors;
+		// MY_LED operator=(NewList<uint8_t*> *set_address);
+        uint8_t * WriteColor(uint8_t* color, NewList<uint8_t> *set_colors, uint8_t num = 3);
+		void TransList(NewList<uint8_t> *set_colors);
+		NewList<uint8_t*>* NewLed(NewList<uint8_t> *set_color, NewList<uint8_t> *set_colors);
     
 };
 
@@ -29,6 +28,12 @@ MY_LED::~MY_LED()
 {
 	
 }
+
+// MY_LED MY_LED::operator=(NewList<uint8_t> *set_address)
+// {
+// 	this->SetAddress = set_address;
+// 	return this;
+// }
 
 uint32_t MY_LED::AdaptationColor(uint8_t color)
 {
@@ -65,75 +70,81 @@ uint8_t* MY_LED::TransColor(uint8_t r, uint8_t g, uint8_t b)
 	return buff;
 }
 
-uint8_t * MY_LED::WriteColor(uint8_t * color, NewList<uint8_t*> *set_colors, uint8_t num)
+uint8_t * MY_LED::WriteColor(uint8_t * color, NewList<uint8_t> *set_colors, uint8_t num)
 {
     bool flag_color;
-	Node<uint8_t*> *iter = set_colors->back()->Next;
+	uint8_t *begin_s = set_colors->next();
+	uint8_t *iter = set_colors->back();
 	do
     {
 		flag_color = false;
 		for (int i = 0; i < num ; i++)
 		{
-			if(color[i] != iter->content[i])
+			if(color[i] != iter[i])
 				flag_color = true;
 		}
 		if (flag_color == false) 
-			return iter->content;
+			return iter;
 
-		iter = iter->Next;
-	}while(iter != set_colors->back()->Next);
+		iter = set_colors->next();
+	}while(iter != begin_s);
 	set_colors->Add(color);
-	return set_colors->back()->content;
+	return set_colors->back();
 }
 
-void MY_LED::TransList(void)
+void MY_LED::TransList(NewList<uint8_t> *set_colors)
 {
-	Node<uint8_t*> *iter = SetColors.back();
-
+	
+	uint8_t *iter = set_colors->back();
+	set_colors->rewrite(TransColor(iter[0], iter[1], iter[2]));
+	uint8_t *begin_s = set_colors->back();
+	iter = set_colors->next();
+	
 	do
     {
-		iter->content = TransColor(iter->content[0], iter->content[1], iter->content[2]);
-		iter = iter->Next;
-	}while(iter != SetColors.back());
+		set_colors->rewrite(TransColor(iter[0], iter[1], iter[2]));
+		iter = set_colors->next();
+	}while(iter != begin_s);
 }
 
-NewList<uint8_t*>* MY_LED::NewLed(NewList<uint8_t*> *set_color, NewList<uint8_t*> *set_colors)
+NewList<uint8_t*>* MY_LED::NewLed(NewList<uint8_t> *set_color, NewList<uint8_t> *set_colors)
 {
-	Node<uint8_t*> *iter_s = set_color->back()->Next;
+	uint8_t* begin_set = set_color->next();
     
-    set_colors->Add(iter_s->content);
-    SetAddress.Add(set_colors->back()->content);
-    iter_s = iter_s->Next;
+    set_colors->Add(begin_set);
+    SetAddress.Add(set_colors->back());
 
-    Node<uint8_t*> *iter_ad = SetAddress.back();
-    while (iter_s != set_color->back()->Next)
+    uint8_t* temp = set_color->next();
+
+    while (temp != begin_set)
 	{
-        SetAddress.Add(WriteColor(iter_s->content, set_colors));
-		iter_s = iter_s->Next;
+        SetAddress.Add(WriteColor(temp, set_colors));
+		temp = set_color->next();
 	}
-	return &SetAddress;
-    // TransList();
+
+    TransList(set_colors);
 	
 ////*** вывод массива адресов ***/////
-    /*iter_ad = SetAddress.back()->Next;
+    /*uint8_t* begin_ad = SetAddress.next();
+    uint8_t* iter_ad = SetAddress.back();
     do
     {
-        cout << ((void*)iter_ad->content) << endl;
-        iter_ad = iter_ad->Next;
-    }while (iter_ad != SetAddress.back()->Next);
-    cout << endl;*/
+        std::cout << (void*)iter_ad << std::endl;
+        iter_ad = SetAddress.next();
+    }while (iter_ad != begin_ad);
+    std::cout << std::endl;*/
 
 ////*** вывод массива цветов ***/////
-
-    /*Node<uint8_t*> *iter = SetColors.back()->Next;
+	/*uint8_t* begin_col = set_colors->next();
+    uint8_t* iter = set_colors->back();
     do
 	{
 		for(int i = 0; i < 9; i++)
 		{
-			cout << static_cast<unsigned>(iter->content[i]) << "  ";
+			std::cout << static_cast<unsigned>(iter[i]) << "  ";
 		}
-        cout << endl;
-        iter = iter->Next;
-	}while (iter != SetColors.back()->Next);
-    cout << endl;*/
+        std::cout << std::endl;
+        iter = set_colors->next();
+	}while (iter != begin_col);
+    std::cout << std::endl;*/
 }

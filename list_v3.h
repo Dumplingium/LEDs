@@ -1,30 +1,29 @@
 #include <iostream>
 #include <cstdint>
 
-using namespace std;
-
-template<typename Type_t>
-struct  Node
-{
-    Type_t content;
-    Node<Type_t> *Next;
-};
-
 template<typename T>
 class NewList
 {
     private:
-        Node<T> *object;
+        struct  Node
+        {
+            T *content;
+            Node *Next;
+        };
+        Node *object;
     public:
         NewList();
         NewList(T NewContent);
         ~NewList();
-        void Add(T NewContent);
+        void Add(T *NewContent);
         void Delete();
-        void Swap(Node<T> *temp1, Node<T> *temp2);
+        void Swap(Node *temp1, Node *temp2);
+        void rewrite(T *NewContent);
         void PrintList();
         void PrintListBuff(int num);
-        Node<T>* back();
+        T* back();
+        T* next();
+
 };
 
 template<typename T>
@@ -47,9 +46,9 @@ NewList<T>::~NewList()
 }
 
 template<typename T>
-void NewList<T>::Add(T NewContent)
+void NewList<T>::Add(T *NewContent)
 {
-    Node<T> *new_obj = new Node<T>;
+    Node *new_obj = new Node;
     new_obj->content = NewContent;
     
     if(this->object == NULL)
@@ -70,7 +69,7 @@ void NewList<T>::Delete()
 {
     if(object != NULL)
     {
-        Node<T> *temp = object->Next;
+        Node *temp = object->Next;
         object->content = temp->content;
         object->Next = temp->Next;
         delete temp;
@@ -78,7 +77,7 @@ void NewList<T>::Delete()
 
     if(object != object->Next)
     {
-        Node<T> *tempPrev = object;
+        Node *tempPrev = object;
         while(tempPrev->Next != object)
         {
             tempPrev = tempPrev->Next;
@@ -88,12 +87,12 @@ void NewList<T>::Delete()
 }
 
 template<typename T>
-void NewList<T>::Swap(Node<T> *temp1, Node<T> *temp2)
+void NewList<T>::Swap(Node *temp1, Node *temp2)
 {
-    Node<T> *tempPrev1 = object;
-    Node<T> *tempPrev2 = object;
-    Node<T> *Next1 = temp1->Next;
-    Node<T> *Next2 = temp2->Next;
+    Node *tempPrev1 = object;
+    Node *tempPrev2 = object;
+    Node *Next1 = temp1->Next;
+    Node *Next2 = temp2->Next;
 
     while(tempPrev1->Next != temp1)
     {
@@ -132,39 +131,52 @@ void NewList<T>::Swap(Node<T> *temp1, Node<T> *temp2)
 template<typename T>
 void NewList<T>::PrintList()
 {
-    cout << "! ";
+    std::cout << "! ";
 
-    Node<T> *temp_object = object->Next;
+    Node *temp_object = object->Next;
     do
     {
-        cout << static_cast<unsigned>(temp_object->content) << " ";
+        std::cout << static_cast<unsigned>(temp_object->content) << " ";
         temp_object = temp_object->Next;
     }while(temp_object != object->Next);
     
-    cout << endl;
+    std::cout << std::endl;
 } 
 
 template<typename T>
 void NewList<T>::PrintListBuff(int num)
 {
-    cout << "! ";
+    std::cout << "! ";
 
-    Node<T> *temp_object = object->Next;
+    Node *temp_object = object->Next;
     do
     {
         for(int i = 0; i < num; i++)
         {
-            cout << static_cast<unsigned>(temp_object->content[i]) << " ";
+            std::cout << static_cast<unsigned>(temp_object->content[i]) << " ";
         }
-        cout << " -> " << endl;
+        std::cout << " -> " << std::endl;
         temp_object = temp_object->Next;
     }while(temp_object != object->Next);
     
-    cout << endl;
+    std::cout << std::endl;
 }
 
 template<typename T>
-Node<T>* NewList<T>::back()
+T* NewList<T>::back()
 {
-    return object;
+    return object->content;
+}
+
+template<typename T>
+T* NewList<T>::next()
+{
+    object = object->Next;
+    return object->content;
+}
+
+template<typename T>
+void NewList<T>::rewrite(T *NewContent)
+{
+    object->content = NewContent;
 }
