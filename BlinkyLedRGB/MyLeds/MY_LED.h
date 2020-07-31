@@ -58,6 +58,18 @@ class MY_LED
             }while (temp != begin_set);
 
         }
+        void AddColor(uint8_t *buff, NewList<uint8_t> *set_colors)
+        {
+            if(set_colors->back() == NULL)
+            {
+                set_colors->Add(buff);
+                SetAddress.Add(set_colors->back());
+            }
+            else
+            {
+                SetAddress.Add(WriteColor(buff, set_colors));
+            }
+        }
 		uint8_t * NextAddress()
         {
             return SetAddress.next();

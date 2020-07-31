@@ -4,7 +4,6 @@
 #include "mbed.h"
 #include <iostream>
 
-
 class MY_LED_RGB
 {
     protected:
@@ -40,7 +39,7 @@ class MY_LED_RGB
             __HAL_SPI_DISABLE(&SpiHandle);
             
             SpiHandle.Init.Mode = SPI_MODE_MASTER;
-            SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32; // 2 is 45 mhz 32 is 2.81mhz
+            SpiHandle.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
             SpiHandle.Init.Direction = SPI_DIRECTION_2LINES;
             SpiHandle.Init.CLKPhase = SPI_PHASE_1EDGE; // mode 0
             SpiHandle.Init.CLKPolarity = SPI_POLARITY_LOW;

@@ -79,29 +79,52 @@ public:
             iter = set_colors->next();
         }while(iter != begin_s);
     }
-    void AddNewLed(NewList<uint8_t> *colors_led)
+    void AddNewLed(/*NewList<uint8_t> *colors_led*/)
     {
         MY_LED *new_led = new MY_LED;
-        new_led->NewLed(colors_led, &SetAllColors);
+        // new_led->NewLed(colors_led, &SetAllColors);
         SetLeds.Add(new_led);
-
+        
+        // delete colors_led;
+    }
+    void AddColorBackLed(uint8_t *buff)
+    {
+        SetLeds.back()->AddColor(buff, &SetAllColors);
     }
     void One()
     {
-
         MY_LED *begin_led = SetLeds.back();
         MY_LED *iter_led = SetLeds.back();
-        uint8_t *temp = iter_led->BackAddress();
         
         do
         {
+            uint8_t *temp = iter_led->NextAddress();
             LightOneLed(temp);
-            temp = iter_led->NextAddress();
             iter_led = SetLeds.next();
-            temp = iter_led->BackAddress();
     
         } while (iter_led != begin_led);
         
+    }
+    void BlinkyNOne(int quantity, float delay_sec)
+    {
+        TransList(&SetAllColors);
+        SetLeds.next();
+        if(quantity == 1)
+        {
+            while (true)
+            {
+                One();
+                wait_us(delay_sec);
+            }
+        }
+        else
+        {
+            for(int i = 0; i < quantity; i++)
+            {
+                One();
+                wait_us(delay_sec);
+            }
+        }    
     }
 };
 
